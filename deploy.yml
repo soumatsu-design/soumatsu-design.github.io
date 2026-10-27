@@ -1,0 +1,38 @@
+# 作品集《黴》網站：把分割的 zip 組回去，核對後發布到 GitHub Pages。
+# v1（夜から頁へ）在根目錄，v2（夜の培地）在 /yoru/；圖片、PDF、字體等兩版共用，組的時候複製過去。
+name: 發布網站
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: 組回網站
+        run: |
+          cat kabi_site.zip.part* > kabi_site.zip
+          md5sum -c kabi_site.md5
+          mkdir _site
+          unzip -q kabi_site.zip -d _site
+          cp -r _site/assets _site/img _site/pdf _site/LICENSES.txt _site/.nojekyll _site/yoru/
+          cd _site
+          md5sum -c --quiet ../kabi_site_files.md5
+          find . -type f | wc -l
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
