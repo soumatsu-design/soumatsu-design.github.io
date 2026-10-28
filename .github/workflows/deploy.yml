@@ -1,5 +1,6 @@
 # 作品集《黴》網站：把分割的 zip 組回去，核對後發布到 GitHub Pages。
-# v1（夜から頁へ）在根目錄，v2（夜の培地）在 /yoru/；圖片、PDF、字體等兩版共用，組的時候複製過去。
+# 10/28 起：全黑版（夜の培地）在根目錄，白底版（夜から頁へ）在 /hiru/，/yoru/ 只留轉到根目錄的 3 頁；圖片、PDF、字體等兩版共用，組的時候複製到 hiru/。
+# （10/28 以前：v1（夜から頁へ）在根目錄，v2（夜の培地）在 /yoru/，共用的檔複製到 yoru/。修改包 05 上傳前仍照舊。）
 # 10/27 夜：之後的小修改放在 kabi_patch_NN.zip（只有改過的檔），照編號順序蓋上去，不必重傳整包。
 name: 發布網站
 on:
@@ -31,7 +32,8 @@ jobs:
             md5sum -c "${p%.zip}.md5"
             unzip -q -o "$p" -d _site
           done
-          cp -r _site/assets _site/img _site/pdf _site/LICENSES.txt _site/.nojekyll _site/yoru/
+          if [ -d _site/hiru ]; then sub=hiru; else sub=yoru; fi
+          cp -r _site/assets _site/img _site/pdf _site/LICENSES.txt _site/.nojekyll "_site/$sub/"
           cd _site
           md5sum -c --quiet ../kabi_site_files.md5
           find . -type f | wc -l
